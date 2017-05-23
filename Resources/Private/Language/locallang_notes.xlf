@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2017-05-22T22:07:00Z" product-name="be_user_notes">
+		<header/>
+		<body>
+            <trans-unit id="toolbar.notes.title">
+                <source>My Notes</source>
+            </trans-unit>
+            <trans-unit id="toolbar.notes.item.title">
+                <source>Notes</source>
+            </trans-unit>
+            <trans-unit id="toolbar.notes.item.new.title">
+                <source>New notes</source>
+            </trans-unit>
+            <trans-unit id="toolbar.notes.item.new.none">
+                <source>There are no unread notes</source>
+            </trans-unit>
+            <trans-unit id="toolbar.notes.item.none">
+                <source>There are no notes</source>
+            </trans-unit>
+            <trans-unit id="toolbar.notes.item.add">
+                <source>Add new note</source>
+            </trans-unit>
+
+            <trans-unit id="modal.notes.button.add">
+                <source>Add</source>
+            </trans-unit>
+            <trans-unit id="modal.notes.item.add">
+                <source>Add new note</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
