@@ -17,5 +17,9 @@ return [
     'notes_new' => [
         'path' => 'notes/new',
         'target' => \TheCodingOwl\BeUserNotes\Controller\NoteController::class . '->newAction'
+    ],
+    'notes_create' => [
+        'path' => 'notes/create',
+        'target' => \TheCodingOwl\BeUserNotes\Controller\NoteController::class . '->createAction'
     ]
 ];

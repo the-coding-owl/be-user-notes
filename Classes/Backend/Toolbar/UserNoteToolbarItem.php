@@ -136,7 +136,7 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
      */
     public function getItem(): string {
         $count = $this->countNewNotes();
-        return '<span class="dropdown-toggle" title="' . $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:toolbar.notes.title') . '">'
+        return '<span title="' . $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:toolbar.notes.title') . '">'
             . $this->iconFactory->getIcon('mimetypes-x-sys_note', Icon::SIZE_SMALL)
             . ( (int) $count > 0 ? '<span class="badge badge-info" style="display: none;">' . $this->countNewNotes() . '</span>' : '' )
             . '</span>';
