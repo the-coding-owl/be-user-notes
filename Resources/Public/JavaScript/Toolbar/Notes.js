@@ -38,6 +38,20 @@ function($, Modal, Severity, Icons, Notification) {
             xhrObject.abort();
         }
     }
+    
+    /**
+     * Check if a xhr request is ongoing
+     *
+     * @param {XMLHttpRequest} xhrObject The xhr request object to check
+     *
+     * @returns {Boolean}
+     */
+    function xhrInProgress(xhrObject){
+        if( xhrObject !== null && xhrObject.readyState !== 4 ){
+            return true;
+        }
+        return false;
+    }
 
     /**
      * NotesMenu Object that is used to manage the toolbar menu item
@@ -46,7 +60,7 @@ function($, Modal, Severity, Icons, Notification) {
      */
     var NotesMenu = {
         selectors:{
-            toolbarContainerSelector: '#thecondingowl-beusernotes-backend-toolbar-usernotetoolbaritem',
+            toolbarContainerSelector: '#thecodingowl-beusernotes-backend-toolbar-usernotetoolbaritem',
             addButtonSelector: '.note-add',
             itemsSelector: '.note-item',
             itemsNewSelector: '.note-new',
@@ -57,7 +71,7 @@ function($, Modal, Severity, Icons, Notification) {
             addButton: null,
             icon: null,
             spinner: '',
-            spinnerDark: '',
+            spinnerDark: ''
         },
         items: null,
         itemsNew: null,
@@ -77,20 +91,20 @@ function($, Modal, Severity, Icons, Notification) {
         NotesMenu.elements.toolbarContainer.on('click.add-note', NotesMenu.selectors.addButtonSelector, function(event){
             event.preventDefault();
             NotesMenu.startLoading();
-            xhrAbort(NotesMenu.xhrCreate);
-            NotesMenu.xhrCreate = $.get(TYPO3.settings.ajaxUrls['notes_new']);
-            NotesMenu.xhrCreate.always(function(){
+            xhrAbort(NotesMenu.xhrObjects.xhrCreate);
+            NotesMenu.xhrObjects.xhrCreate = $.get(TYPO3.settings.ajaxUrls['notes_new']);
+            NotesMenu.xhrObjects.xhrCreate.always(function(){
                 NotesMenu.finishLoading();
             });
-            NotesMenu.xhrCreate.done(function(data){
+            NotesMenu.xhrObjects.xhrCreate.done(function(data){
                 if( data && data.success ){
                     NotesMenu.openCreateModal(data.content);
                 } else {
                     NotesMenu.notifyError(data.message);
                 }
             });
-            NotesMenu.xhrCreate.fail(function(){
-                NotesMenu.notifyError(NotesMenu.xhrCreate.statusText);
+            NotesMenu.xhrObjects.xhrCreate.fail(function(){
+                NotesMenu.notifyError(NotesMenu.xhrObjects.xhrCreate.statusText);
             });
         });
     };
@@ -100,7 +114,7 @@ function($, Modal, Severity, Icons, Notification) {
      * @returns {undefined}
      */
     NotesMenu.initialize = function(){
-        NotesMenu.elements.toolbarContainer = $(NotesMenu.elements.toolbarContainerSelector);
+        NotesMenu.elements.toolbarContainer = $(NotesMenu.selectors.toolbarContainerSelector);
         NotesMenu.loadIcons();
         NotesMenu.elements.addButton = NotesMenu.elements.toolbarContainer.find(NotesMenu.selectors.addButtonSelector);
         NotesMenu.items = NotesMenu.elements.toolbarContainer.find(NotesMenu.selectors.itemsSelector);
@@ -157,8 +171,8 @@ function($, Modal, Severity, Icons, Notification) {
     NotesMenu.createNote = function(){
         var $noteForm = $('#tx-beusernotes-form-create'),
             data = $noteForm.serializeArray();
-        xhrAbort(NotesMenu.xhrCreate);
-        xhrCreate = $.post(TYPO3.settings.ajaxUrls['notes_create'],data);
+        xhrAbort(NotesMenu.xhrObjects.xhrCreate);
+        NotesMenu.xhrObjects.xhrCreate = $.post(TYPO3.settings.ajaxUrls['notes_create'],data);
     };
     /**
      * Load some icons from the server
@@ -194,7 +208,9 @@ function($, Modal, Severity, Icons, Notification) {
     NotesMenu.finishLoading = function(){
         if(
             NotesMenu.loading &&
-            ( NotesMenu.xhrCreate === null || NotesMenu.xhrCreate.readyState === 4 )
+            !xhrInProgress(NotesMenu.xhrObjects.xhrCreate) &&
+            !xhrInProgress(NotesMenu.xhrObjects.xhrDelete) &&
+            NotesMenu.xhrObjects.xhrRead.map(xhrInProgress).indexOf(false) === -1
         ){
             NotesMenu.elements.toolbarContainer.find(NotesMenu.selectors.iconSelector).replaceWith(NotesMenu.elements.icon);
             NotesMenu.loading = false;

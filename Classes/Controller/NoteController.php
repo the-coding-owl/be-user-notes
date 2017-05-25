@@ -15,163 +15,46 @@
 
 namespace TheCodingOwl\BeUserNotes\Controller;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\RequestInterface;
-
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
-use TYPO3\CMS\Lang\LanguageService;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TheCodingOwl\BeUserNotes\Domain\Model\Note;
+use TheCodingOwl\BeUserNotes\Domain\Repository\NoteRepository;
 
 /**
  * NoteController
  *
  * @author Kevin Ditscheid <kevinditscheid@gmail.com>
  */
-class NoteController {
+class NoteController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController{
 
     /**
-     * The view object
+     * The repository of notes
      *
-     * @var \TYPO3\CMS\Fluid\View\StandaloneView
+     * @var \TheCodingOwl\BeUserNotes\Domain\Repository\NoteRepository;
      */
-    protected $view;
+    protected $noteRepository;
 
     /**
-     * The locallang path
+     * Inject the NoteRepository
      *
-     * @var string
+     * @param NoteRepository $noteRepository The repository to inject
      */
-    protected $ll = 'EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:';
-
-    /**
-     * Constructor of the NoteController
-     */
-    public function __construct() {
-        $this->initializeView();
-
-    }
-
-    /**
-     * Initialize the view object of the controller
-     */
-    public function initializeView() {
-        $this->view = GeneralUtility::makeInstance(StandaloneView::class);
-        $this->view->setFormat('html');
-        $this->view->setLayoutRootPaths([ 'EXT:be_user_notes/Resources/Private/Layouts/' ]);
-        $this->view->setPartialRootPaths([ 'EXT:be_user_notes/Resources/Private/Partials/' ]);
-        $this->view->setTemplateRootPaths([ 'EXT:be_user_notes/Resources/Private/Templates/' ]);
+    public function injectNoteRepository(NoteRepository $noteRepository) {
+        $this->noteRepository = $noteRepository;
     }
 
     /**
      * Action that is used to display a form for new sys_notes
-     *
-     * @return string
      */
-    public function newAction(RequestInterface $request, ResponseInterface $response): ResponseInterface {
-        $this->view->setTemplate('New');
-        $response->getBody()->write($this->view->render());
-        return $response;
+    public function newAction(Note $note = NULL) {
+        $this->view->assign('note', $note);
     }
 
     /**
      * Create a new note
      *
-     * @param array $note
+     * @param \TheCodingOwl\BeUserNotes\Domain\Model\Note $note
      */
-    public function createAction(RequestInterface $request, ResponseInterface $response){
-        $this->view->setFormat('json');
-        $this->view->setTemplate('Create');
-
-        $parsedBody = $request->getParsedBody();
-        $queryParams = $request->getQueryParams();
-        $note = (isset($parsedBody['note']) ? $parsedBody['note'] : $queryParams['note']);
-        $status = $this->processNote($note);
-        $this->view->assign('status', $status);
-        $response->getBody()->write($this->view->render());
-        return $response;
+    public function createAction(Note $note){
+        $this->noteRepository->add($note);
     }
 
-    protected function processNote(array $note){
-        $status = [
-            'success' => FALSE,
-            'validation' => [],
-            'error' => []
-        ];
-        if( empty($note['subject']) ){
-            $status['validation']['subject'] = [ 'message' => $this->getLanguageService()->sL($this->ll . 'action.create.validation.subject.empty') ];
-        } elseif( $this->checkLength($note['subject'], 'subject') ){
-            $status['validation']['subject'] = [ 'message' => $this->getLanguageService()->sL($this->ll . 'action.create.validation.subject.maxlength'), 'arguments' => [ $this->getMaxLength('subject') ] ];
-        } else {
-            $db = $this->getDatabaseConnection();
-            $time = time();
-            $insertArray = [
-                'subject' => $db->fullQuoteStr($note['subject'], 'sys_note'),
-                'message' => $db->fullQuoteStr($note['message'], 'sys_note'),
-                'tstamp' => $time,
-                'crdate' => $time,
-                'cruser' => $this->getBackendUserAuthentication()->user['uid'],
-                'personal' => (bool)$note['personal'],
-                'pid' => (int)$note['pid']
-            ];
-            $db->exec_INSERTquery('sys_note', $insertArray);
-        }
-
-        return $status;
-    }
-
-    /**
-     * Check the length of the given value against the given fieldname
-     *
-     * @param string $value The value to check
-     * @param string $field The field to check against
-     *
-     * @return bool
-     */
-    protected function checkLength(string $value, string $field): bool {
-        $maxLength = $this->getMaxLength($field);
-        if( $maxLength && strlen($value) > $maxLength ){
-            return FALSE;
-        }
-        return TRUE;
-    }
-
-    /**
-     * Get the maxlength of the given field
-     *
-     * @param string $field The field to fetch the max configuration from
-     *
-     * @return int
-     */
-    protected function getMaxLength(string $field): int {
-        return (int)$GLOBALS['TCA']['sys_note']['columns'][$field]['config']['max'];
-    }
-
-    /**
-     * Get the LanguageService aka $GLOBALS['LANG']
-     *
-     * @return \TYPO3\CMS\Lang\LanguageService
-     */
-    protected function getLanguageService(): LanguageService {
-        return $GLOBALS['LANG'];
-    }
-
-    /**
-     * Get the DatabaseConnection
-     *
-     * @return \TYPO3\CMS\Core\Database\DatabaseConnection
-     */
-    protected function getDatabaseConnection(): DatabaseConnection {
-        return $GLOBALS['TYPO3_DB'];
-    }
-
-    /**
-     * Get the BackendUserAuthentication object aka $GLOBALS['BE_USER']
-     *
-     * @return \TYPO3\CMS\Core\Authentication\BackendUserAuthentication
-     */
-    protected function getBackendUserAuthentication(): BackendUserAuthentication {
-        return $GLOBALS['BE_USER'];
-    }
 }

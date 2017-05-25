@@ -13,6 +13,7 @@
  * The TYPO3 project - inspiring people to share!
  */
 defined('TYPO3_MODE') or die('Access denied!');
+
 return [
     'notes_new' => [
         'path' => 'notes/new',

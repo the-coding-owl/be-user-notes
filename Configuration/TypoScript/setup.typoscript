@@ -1,0 +1,21 @@
+module.tx_beusernotes{
+    view{
+        templateRootPaths{
+            10 = EXT:be_user_notes/Resources/Private/Templates/
+        }
+        partialRootPaths{
+            10 = EXT:be_user_notes/Resources/Private/Partials/
+        }
+        layoutRootPaths{
+            10 = EXT:be_user_notes/Resources/Private/Layouts/
+        }
+    }
+}
+config.tx_extbase.persistence.classes{
+    TheCodingOwl\BeUserNotes\Domain\Model\Note{
+        mapping{
+            tableName = sys_note
+            recordType =
+        }
+    }
+}

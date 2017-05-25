@@ -13,7 +13,7 @@
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace TheCondingOwl\BeUserNotes\Backend\Toolbar;
+namespace TheCodingOwl\BeUserNotes\Backend\Toolbar;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\DataHandling\DataHandler;

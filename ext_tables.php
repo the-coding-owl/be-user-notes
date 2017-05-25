@@ -27,7 +27,10 @@ if (TYPO3_MODE === 'BE') {
         [
             'access' => 'user,group',
             'icon' => 'EXT:be_user_notes/ext_icon.svg',
-            'labels' => 'LLL:EXT:be_user_notes/Resources/Private/Language/locallang_mod.xlf'
+            'labels' => 'LLL:EXT:be_user_notes/Resources/Private/Language/locallang_mod.xlf',
+            'configuration' => [
+                'shy' => true
+            ]
         ]
     );
 }

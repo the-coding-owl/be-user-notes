@@ -17,7 +17,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "TheCondingOwl\\BeUserNotes\\": "Classes/"
+            "TheCodingOwl\\BeUserNotes\\": "Classes/"
         }
     },
     "replace": {
