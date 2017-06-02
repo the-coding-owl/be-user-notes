@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2017-05-28T11:52:00Z" product-name="be_user_notes">
+		<header/>
+		<body>
+            <trans-unit id="action.new.headline">
+                <source>Create new note</source>
+            </trans-unit>
+            <trans-unit id="action.new.note.subject">
+                <source>Subject</source>
+            </trans-unit>
+            <trans-unit id="action.new.note.message">
+                <source>Message</source>
+            </trans-unit>
+            <trans-unit id="action.new.note.personal">
+                <source>Personal Message</source>
+            </trans-unit>
+            <trans-unit id="action.new.note.beuser">
+                <source>Send to</source>
+            </trans-unit>
+            
+            <trans-unit id="action.new.success">
+                <source>Sucessfully created new note.</source>
+            </trans-unit>
+            
+            <!-- Validation messages -->
+            <trans-unit id="error.field.subject.1221560718">
+                <source>Please provide a subject</source>
+            </trans-unit>
+            <trans-unit id="error.generic.message">
+                <source>There has been an error with the creation of the Note, please try again.</source>
+            </trans-unit>
+            <trans-unit id="error.validation.message">
+                <source>There have been validation errors. They have been highlighted in the form, please fix them and try again.</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

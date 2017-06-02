@@ -92,7 +92,7 @@ function($, Modal, Severity, Icons, Notification) {
             event.preventDefault();
             NotesMenu.startLoading();
             xhrAbort(NotesMenu.xhrObjects.xhrCreate);
-            NotesMenu.xhrObjects.xhrCreate = $.get(TYPO3.settings.ajaxUrls['notes_new']);
+            NotesMenu.xhrObjects.xhrCreate = $.get(NotesMenu.elements.addButton.attr('href'),{tx_beusernotes_user_beusernotesnotes:{target:'modal'}});
             NotesMenu.xhrObjects.xhrCreate.always(function(){
                 NotesMenu.finishLoading();
             });
@@ -155,24 +155,46 @@ function($, Modal, Severity, Icons, Notification) {
                 btnClass: 'btn-success',
                 name: 'create',
                 trigger: function(event){
-                    Modal.dismiss();
                     NotesMenu.startLoading();
-                    NotesMenu.createNote();
+                    NotesMenu.resetValidationResults();
+                    var xhr = NotesMenu.createNote();
+                    xhr.done(function(data){
+                        if( data && data.success ){
+                            NotesMenu.notifySuccess(data.message);
+                            Modal.dismiss();
+                        } else {
+                            NotesMenu.notifyError(data.message);
+                            if( data.validationResults.length > 0 ){
+                                NotesMenu.highlightValidationResults(data);
+                            }
+                        }
+                    });
+                    xhr.fail(function(){
+                        NotesMenu.notifyError(xhr.statusText);
+                    });
                 }
             }
         ];
-        Modal.confirm(TYPO3.lang['modal.notes.item.add'] || 'Add new note', content, Severity.info, buttons);
+        Modal.confirm(TYPO3.lang['modal.notes.item.add'] || 'Add new note', $(content), Severity.info, buttons);
     };
     /**
      * Send the note data to the server to create the note
      *
-     * @returns {undefined}
+     * @returns {jqXHR}
      */
     NotesMenu.createNote = function(){
         var $noteForm = $('#tx-beusernotes-form-create'),
             data = $noteForm.serializeArray();
+        data.push({
+            name: 'tx_beusernotes_user_beusernotesnotes[format]',
+            value: 'json'
+        });
         xhrAbort(NotesMenu.xhrObjects.xhrCreate);
-        NotesMenu.xhrObjects.xhrCreate = $.post(TYPO3.settings.ajaxUrls['notes_create'],data);
+        NotesMenu.xhrObjects.xhrCreate = $.post($noteForm.attr('action'),data);
+        NotesMenu.xhrObjects.xhrCreate.always(function(){
+            NotesMenu.finishLoading();
+        });
+        return NotesMenu.xhrObjects.xhrCreate;
     };
     /**
      * Load some icons from the server
@@ -186,6 +208,35 @@ function($, Modal, Severity, Icons, Notification) {
         Icons.getIcon('spinner-circle-dark', Icons.sizes.small).done(function(spinner) {
 			NotesMenu.elements.spinnerDark = spinner;
 		});
+    };
+    /**
+     * Highlight the validation results in the form
+     *
+     * @param {Object} data
+     * @returns {undefined}
+     */
+    NotesMenu.highlightValidationResults = function(data){
+        var $noteForm = $('#tx-beusernotes-form-create');
+        $.each(data.validationResults, function(index,error){
+            var $field = $noteForm.find('[name="tx_beusernotes_user_beusernotesnotes[note][' + error.field + ']"]'),
+                $formGroup = $field.closest('.form-group');
+            $formGroup.addClass('has-error');
+            $formGroup.append('<em class="bg-danger">' + error.result + '</em>');
+        });
+    };
+    
+    /**
+     * Reset the validation results in the form
+     *
+     * @returns {undefined}
+     */
+    NotesMenu.resetValidationResults = function(){
+        var $noteForm = $('#tx-beusernotes-form-create');
+        $noteForm.find('.form-group.has-error').each(function(){
+            var $formGroup = $(this);
+            $formGroup.removeClass('has-error');
+            $formGroup.find('em.bg-danger').remove();
+        });
     };
     /**
      * Start the loading spinner

@@ -28,6 +28,7 @@ class Note extends AbstractEntity {
      * The subject of the note
      *
      * @var string
+     * @validate NotEmpty
      */
     protected $subject;
 
@@ -88,7 +89,7 @@ class Note extends AbstractEntity {
      *
      * @return self
      */
-    public function setMessage(string $message): self {
+    public function setMessage(string $message = ''): self {
         $this->message = $message;
         return $this;
     }
@@ -100,7 +101,7 @@ class Note extends AbstractEntity {
      *
      * @return self
      */
-    public function setPersonal(bool $personal): self {
+    public function setPersonal(bool $personal = FALSE): self {
         $this->personal = $personal;
         return $this;
     }
@@ -112,7 +113,7 @@ class Note extends AbstractEntity {
      *
      * @return self
      */
-    public function setBeUser(BackendUser $beUser): self {
+    public function setBeUser(BackendUser $beUser = NULL): self {
         $this->beUser = $beUser;
         return $this;
     }
@@ -124,7 +125,7 @@ class Note extends AbstractEntity {
      *
      * @return self
      */
-    public function setCategory(NoteCategory $category): self {
+    public function setCategory(NoteCategory $category = NULL): self {
         $this->category = $category;
         return $this;
     }
@@ -136,7 +137,7 @@ class Note extends AbstractEntity {
      *
      * @return self
      */
-    public function setViewed(bool $viewed): self {
+    public function setViewed(bool $viewed = FALSE): self {
         $this->viewed = $viewed;
         return $this;
     }

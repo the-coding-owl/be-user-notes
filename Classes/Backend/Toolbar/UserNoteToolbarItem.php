@@ -64,7 +64,6 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
         $pageRenderer->addInlineLanguageLabel('modal.notes.button.add', $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:modal.notes.button.add'));
         $pageRenderer->addInlineLanguageLabel('modal.notes.item.add', $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:modal.notes.item.add'));
         $pageRenderer->loadRequireJsModule('TYPO3/CMS/BeUserNotes/Toolbar/Notes');
-
     }
 
     /**
@@ -116,7 +115,7 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
             . '<li class="dropdown-header">' . $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:toolbar.notes.item.title') . '</li>'
             . ( $outNotes !== '' ? $outNotes : '<li class="dropdown-item">' . $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:toolbar.notes.item.none') . '</li>' )
             . '<li class="divider" role="separator"></li>'
-            . '<li class="dropdown-item"><a class="note-add" href="' . BackendUtility::getModuleUrl('notes_new'). '">' . $this->iconFactory->getIcon('mimetypes-x-sys_note', Icon::SIZE_SMALL, 'overlay-new') . $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:toolbar.notes.item.add') . '</a></li>'
+            . '<li class="dropdown-item"><a class="note-add" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes'). '">' . $this->iconFactory->getIcon('mimetypes-x-sys_note', Icon::SIZE_SMALL, 'overlay-new') . $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:toolbar.notes.item.add') . '</a></li>'
             . '</ul>';
     }
 
@@ -167,7 +166,7 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
      */
     protected function countNewNotes(): int {
         return $this->getDatabaseConnection()->exec_SELECTcountRows(
-            'user_sys_note.uid',
+            'user_sys_note.sys_note',
             'user_sys_note LEFT JOIN sys_note ON sys_note.uid=user_sys_note.sys_note',
             'user_sys_note.be_user=' . (int)$this->beUser->user['uid'] . ' AND user_sys_note.viewed=0 ' . BackendUtility::BEenableFields('sys_note')
         );

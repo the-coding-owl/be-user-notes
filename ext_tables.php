@@ -15,22 +15,26 @@
 
 defined('TYPO3_MODE') or die('Access denied!');
 
-if (TYPO3_MODE === 'BE') {
-    \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
-        'TheCodingOwl.BeUserNotes',
-        'user',
-        'notes',
-        '',
-        [
-            'Note' => 'new,create',
-        ],
-        [
-            'access' => 'user,group',
-            'icon' => 'EXT:be_user_notes/ext_icon.svg',
-            'labels' => 'LLL:EXT:be_user_notes/Resources/Private/Language/locallang_mod.xlf',
-            'configuration' => [
-                'shy' => true
+call_user_func(function(){
+    if (TYPO3_MODE === 'BE') {
+        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
+            'TheCodingOwl.BeUserNotes',
+            'user',
+            'notes',
+            '',
+            [
+                'Note' => 'new,create',
+            ],
+            [
+                'access' => 'user,group',
+                'icon' => 'EXT:be_user_notes/ext_icon.svg',
+                'labels' => 'LLL:EXT:be_user_notes/Resources/Private/Language/locallang_mod.xlf',
+                'configuration' => [
+                    'shy' => true
+                ]
             ]
-        ]
-    );
-}
+        );
+        // hide the module because it shall only be accessible via the toolbar icon
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig('options.hideModules.user := addToList(BeUserNotesNotes)');
+    }
+});

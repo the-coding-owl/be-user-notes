@@ -44,40 +44,6 @@ class NoteCategory extends AbstractValueObject{
      * @var int
      */
     protected $value;
-    
-    /**
-     * All possible icons of a NoteCategory
-     *
-     * @var array
-     */
-    static public $possibleIcons = [];
-    
-    /**
-     *All possible labels of a NoteCategory
-     *
-     * @var array
-     */
-    static public $possibleLabels = [];
-    
-    /**
-     * All possible values of a NoteCategory
-     *
-     * @var array
-     */
-    static public $possibleValues = [];
-
-    /**
-     * Setting up the NoteCategory model and its static values
-     */
-    public function __construct() {
-        if( isset($GLOBALS['TCA']['sys_note']['columns']['category']['config']['items']) ){
-            foreach( $GLOBALS['TCA']['sys_note']['columns']['category']['config']['items'] as $item ){
-                static::$possibleLabels[$item[1]] = $item[0];
-                static::$possibleIcons[$item[1]] = $item[2];
-                static::$possibleValues[$item[1]] = $item[1];
-            }
-        }
-    }
 
     /**
      * Set the icon
@@ -85,13 +51,8 @@ class NoteCategory extends AbstractValueObject{
      * @param string $icon The icon to set
      *
      * @return self
-     *
-     * @throws \UnexpectedValueException The icon is not supported
      */
     public function setIcon(string $icon): self {
-        if( !in_array($icon, static::$possibleIcons) ){
-            throw new \UnexpectedValueException("The icon \"$icon\" is not supported for sys_note!");
-        }
         $this->icon = $icon;
         return $this;
     }
@@ -102,13 +63,8 @@ class NoteCategory extends AbstractValueObject{
      * @param string $label The label to set
      *
      * @return self
-     *
-     * @throws \UnexpectedValueException The label is not supported
      */
     public function setLabel(string $label): self {
-        if( !in_array($label, static::$possibleLabels) ){
-            throw new \UnexpectedValueException("The label \"$label\" is not supported for sys_note!");
-        }
         $this->label = $label;
         return $this;
     }
@@ -119,13 +75,8 @@ class NoteCategory extends AbstractValueObject{
      * @param int $value The value to set
      *
      * @return self
-     *
-     * @throws \UnexpectedValueException The value is not supported
      */
     public function setValue(int $value): self {
-        if( !in_array($value, static::$possibleValues) ){
-            throw new \UnexpectedValueException("The value \"$value\" is not supported for sys_note!");
-        }
         $this->value = $value;
         return $this;
     }

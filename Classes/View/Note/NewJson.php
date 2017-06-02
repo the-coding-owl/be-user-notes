@@ -13,20 +13,20 @@
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace TheCodingOwl\BeUserNotes\Domain\Repository;
+namespace TheCodingOwl\BeUserNotes\View\Note;
 
-use TYPO3\CMS\Extbase\Persistence\Repository;
+use TYPO3\CMS\Extbase\Mvc\View\JsonView;
 
 /**
- * Repository for handling Note Models
+ * Json view for the new action
  *
  * @author Kevin Ditscheid <kevinditscheid@gmail.com>
  */
-class NoteRepository extends Repository{
+class NewJson extends JsonView{
     /**
-     * Persist the changes to the database
+     * Array of variables to render by this view
+     *
+     * @var array
      */
-    public function persist(){
-        $this->persistenceManager->persistAll();
-    }
+    protected $variablesToRender = ['success', 'content', 'message'];
 }
