@@ -15,7 +15,7 @@
             <trans-unit id="action.new.note.personal">
                 <source>Personal Message</source>
             </trans-unit>
-            <trans-unit id="action.new.note.beuser">
+            <trans-unit id="action.new.note.owner">
                 <source>Send to</source>
             </trans-unit>
             

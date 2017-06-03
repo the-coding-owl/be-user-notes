@@ -1,7 +1,7 @@
 #
-# Table structure for table 'user_sys_note'
+# Table structure for table 'sys_note_viewed'
 #
-CREATE TABLE user_sys_note (
+CREATE TABLE sys_note_viewed (
     be_user int(11) unsigned DEFAULT '0' NOT NULL,
     sys_note int(11) unsigned DEFAULT '0' NOT NULL,
     viewed boolean DEFAULT '0' NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE user_sys_note (
 # Table structure for table 'sys_note'
 #
 CREATE TABLE sys_note (
-    be_user int(11) unsigned DEFAULT '0' NOT NULL,
+    owner int(11) unsigned DEFAULT '0' NOT NULL,
     viewed boolean DEFAULT '0' NOT NULL,
-    KEY be_user (be_user)
+    KEY owner (owner)
 );

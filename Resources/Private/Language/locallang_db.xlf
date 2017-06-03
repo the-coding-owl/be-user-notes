@@ -3,7 +3,8 @@
 	<file source-language="en" datatype="plaintext" original="messages" date="2017-05-25T20:01:00Z" product-name="be_user_notes">
 		<header/>
 		<body>
-            <trans-unit id="sys_note.be_user">
+            <!-- sys_note -->
+            <trans-unit id="sys_note.owner">
                 <source>Owner</source>
             </trans-unit>
         </body>

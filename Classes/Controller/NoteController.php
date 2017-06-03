@@ -17,6 +17,7 @@ namespace TheCodingOwl\BeUserNotes\Controller;
 
 use TYPO3\CMS\Extbase\Domain\Repository\BackendUserRepository;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 
 use TheCodingOwl\BeUserNotes\Domain\Model\Note;
 use TheCodingOwl\BeUserNotes\Domain\Repository\NoteRepository;
@@ -132,6 +133,10 @@ class NoteController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController{
     public function initializeCreateAction(){
         $propertyMappingConfiguration = $this->arguments->getArgument('note')->getPropertyMappingConfiguration();
         $propertyMappingConfiguration->forProperty('category')->setTypeConverter($this->objectManager->get(NoteCategoryConverter::class));
+        $propertyMappingConfiguration->allowProperties('cruser');
+        $note = $this->request->getArgument('note');
+        $note['cruser'] = $this->getBackendUserAuthentication()->user['uid'];
+        $this->request->setArgument('note', $note);
     }
     
     /**
@@ -175,5 +180,14 @@ class NoteController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController{
             $message = LocalizationUtility::translate('error.generic.message', $this->request->getControllerExtensionName());
         }
         $this->view->assign('message',$message);
+    }
+    
+    /**
+     * Get the BackendUserAuthentication aka BE_USER
+     *
+     * @return BackendUserAuthentication
+     */
+    protected function getBackendUserAuthentication(): BackendUserAuthentication{
+        return $GLOBALS['BE_USER'];
     }
 }

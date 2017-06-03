@@ -37,21 +37,28 @@ class Note extends AbstractEntity {
      *
      * @var string
      */
-    protected $message;
+    protected $message = '';
 
     /**
      * This is a personal note
      *
      * @var bool
      */
-    protected $personal;
-
+    protected $personal = FALSE;
+    
     /**
-     * The user that this note belongs to
+     * The user who creates the Note
      *
      * @var \TYPO3\CMS\Extbase\Domain\Model\BackendUser
      */
-    protected $beUser;
+    protected $cruser;
+
+    /**
+     * The user who ownes the Note
+     *
+     * @var \TYPO3\CMS\Extbase\Domain\Model\BackendUser
+     */
+    protected $owner;
 
     /**
      * The category of the note
@@ -60,16 +67,6 @@ class Note extends AbstractEntity {
      */
     protected $category;
     
-    /**
-     * The user viewed the note
-     * This is a bit of a special one, because the note doesn't need to belong to
-     * the user to be viewed by him. On the other hand, there could be other
-     * users that can see the note, but did not view it.
-     *
-     * @var bool
-     */
-    protected $viewed;
-
     /**
      * Set the subject
      *
@@ -107,14 +104,26 @@ class Note extends AbstractEntity {
     }
 
     /**
-     * Set the backend user
+     * Set the cruser
      *
-     * @param BackendUser $beUser The user to set
+     * @param BackendUser $cruser The user to set
      *
      * @return self
      */
-    public function setBeUser(BackendUser $beUser = NULL): self {
-        $this->beUser = $beUser;
+    public function setCruser(BackendUser $cruser): self {
+        $this->cruser = $cruser;
+        return $this;
+    }
+
+    /**
+     * Set the osner of the note
+     *
+     * @param BackendUser $owner The user to set
+     *
+     * @return self
+     */
+    public function setOwner(BackendUser $owner = NULL): self {
+        $this->owner = $owner;
         return $this;
     }
 
@@ -127,18 +136,6 @@ class Note extends AbstractEntity {
      */
     public function setCategory(NoteCategory $category = NULL): self {
         $this->category = $category;
-        return $this;
-    }
-
-    /**
-     * Set viewed
-     *
-     * @param bool $viewed TRUE if the Note has been viewed, FALSE otherwise
-     *
-     * @return self
-     */
-    public function setViewed(bool $viewed = FALSE): self {
-        $this->viewed = $viewed;
         return $this;
     }
 
@@ -170,12 +167,21 @@ class Note extends AbstractEntity {
     }
 
     /**
-     * Get the user
+     * Get the cruser
      *
      * @return BackendUser
      */
-    public function getUser(): BackendUser {
-        return $this->user;
+    public function getCruser(): BackendUser {
+        return $this->cruser;
+    }
+
+    /**
+     * Get the owner
+     *
+     * @return NULL|BackendUser
+     */
+    public function getOwner() {
+        return $this->owner;
     }
 
     /**
@@ -185,15 +191,6 @@ class Note extends AbstractEntity {
      */
     public function getCategory(): NoteCategory {
         return $this->category;
-    }
-
-    /**
-     * Is the note viewed by the current user
-     *
-     * @return bool
-     */
-    public function isViewed(): bool {
-        return $this->viewed;
     }
 
 }

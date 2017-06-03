@@ -18,4 +18,10 @@ config.tx_extbase.persistence.classes{
             recordType =
         }
     }
+    TheCodingOwl\BeUserNotes\Domain\Model\NoteViewed{
+        mapping{
+            tableName = sys_note_viewed
+            recordType = 
+        }
+    }
 }

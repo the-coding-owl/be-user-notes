@@ -18,12 +18,23 @@ defined('TYPO3_MODE') or die('Access denied!');
 call_user_func(function(){
     $ll = 'LLL:EXT:be_user_notes/Resources/Private/Language/locallang_db.xlf:';
     TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns('sys_note', [
-        'be_user' => [
-            'label' => $ll . 'sys_note.be_user',
+        'owner' => [
+            'label' => $ll . 'sys_note.owner',
             'exclude' => 1,
             'config' => [
                 'type' => 'select',
                 'renderType' => 'selectSingle',
+                'foreign_table' => 'be_users',
+                'maxitems' => 1,
+                'minitems' => 1
+            ]
+        ],
+        'cruser' => [
+            'label' => $ll . 'sys_note.cruser',
+            'exclude' => 0,
+            'config' => [
+                'type' => 'select',
+                'renderType' => 'singleSelect',
                 'foreign_table' => 'be_users',
                 'maxitems' => 1,
                 'minitems' => 1

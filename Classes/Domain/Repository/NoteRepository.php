@@ -16,6 +16,14 @@
 namespace TheCodingOwl\BeUserNotes\Domain\Repository;
 
 use TYPO3\CMS\Extbase\Persistence\Repository;
+use TYPO3\CMS\Extbase\Domain\Model\BackendUser;
+use TYPO3\CMS\Extbase\Domain\Repository\BackendUserRepository;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Database\DatabaseConnection;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+
+use TheCodingOwl\BeUserNotes\Domain\Model\Note;
 
 /**
  * Repository for handling Note Models
@@ -23,6 +31,7 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
  * @author Kevin Ditscheid <kevinditscheid@gmail.com>
  */
 class NoteRepository extends Repository{
+    
     /**
      * Persist the changes to the database
      */

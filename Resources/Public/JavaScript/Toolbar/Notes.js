@@ -125,11 +125,20 @@ function($, Modal, Severity, Icons, Notification) {
     /**
      * Use the notification to send an error message to the user
      *
-     * @param {type} message
+     * @param {string} message
      * @returns {undefined}
      */
     NotesMenu.notifyError = function(message){
         Notification.error(TYPO3.lang['modal.notes.error.title'] || 'Oops an error occured!', message);
+    };
+    /**
+     * Use the notification to send a success message to the user
+     *
+     * @param {string} message
+     * @returns {undefined}
+     */
+    NotesMenu.notifySuccess = function(message){
+        Notification.success(TYPO3.lang['modal.notes.success.title'] || 'Success', message);
     };
     /**
      * Open the modal for the creation of a sys note

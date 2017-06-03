@@ -15,7 +15,7 @@
 
 namespace TheCodingOwl\BeUserNotes\Domain\Model;
 
-use TYPO3\CMS\Extbase\DomainObject\AbstractValueObject;
+use TYPO3\CMS\Core\Type\TypeInterface;
 
 /**
  * NoteCategory this model represents the NoteCategory which is only configured
@@ -23,7 +23,7 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractValueObject;
  *
  * @author Kevin Ditscheid <kevinditscheid@gmail.com>
  */
-class NoteCategory extends AbstractValueObject{
+class NoteCategory implements TypeInterface{
     /**
      * The icon of the NoteCategory
      *
@@ -108,4 +108,12 @@ class NoteCategory extends AbstractValueObject{
         return $this->value;
     }
 
+    /**
+     * Magic method to get the string representation of this object
+     *
+     * @return string
+     */
+    public function __toString() {
+        return $this->getValue();
+    }
 }
