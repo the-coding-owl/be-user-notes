@@ -16,14 +16,9 @@
 namespace TheCodingOwl\BeUserNotes\Domain\Repository;
 
 use TYPO3\CMS\Extbase\Persistence\Repository;
-use TYPO3\CMS\Extbase\Domain\Model\BackendUser;
-use TYPO3\CMS\Extbase\Domain\Repository\BackendUserRepository;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-
-use TheCodingOwl\BeUserNotes\Domain\Model\Note;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 
 /**
  * Repository for handling Note Models
@@ -37,5 +32,49 @@ class NoteRepository extends Repository{
      */
     public function persist(){
         $this->persistenceManager->persistAll();
+    }
+    
+    /**
+     * Count the new notes for the be_user
+     *
+     * @return int
+     */
+    static public function countNew(): int {
+        return self::getDatabaseConnection()->exec_SELECTcountRows(
+            'sys_note.uid',
+            'sys_note LEFT JOIN sys_note_viewed ON sys_note.uid=sys_note_viewed.sys_note',
+            'sys_note_viewed.be_user=' . (int)self::getBackendUserAuthentication()->user['uid'] . ' AND sys_note_viewed.viewed=0 ' . BackendUtility::BEenableFields('sys_note')
+        );
+    }
+
+    /**
+     * Get the notes
+     *
+     * @return array
+     */
+    static public function findAllArray(): array {
+        return self::getDatabaseConnection()->exec_SELECTgetRows(
+            'sys_note.*, sys_note_viewed.viewed as "viewed"',
+            'sys_note LEFT JOIN sys_note_viewed ON sys_note.uid=sys_note_viewed.sys_note AND sys_note_viewed.be_user=' . (int)self::getBackendUserAuthentication()->user['uid'],
+            '(sys_note.owner = ' . (int)self::getBackendUserAuthentication()->user['uid'] . ') OR (sys_note.personal = 0)' . BackendUtility::BEenableFields('sys_note')
+        );
+    }
+
+    /**
+     * Get the database connection
+     *
+     * @return DatabaseConnection
+     */
+    static protected function getDatabaseConnection(): DatabaseConnection {
+        return $GLOBALS['TYPO3_DB'];
+    }
+    
+    /**
+     * Get the BackendUserAuthentication aka BE_USER
+     *
+     * @return BackendUserAuthentication
+     */
+    static protected function getBackendUserAuthentication(): BackendUserAuthentication{
+        return $GLOBALS['BE_USER'];
     }
 }

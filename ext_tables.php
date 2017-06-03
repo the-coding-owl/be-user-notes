@@ -36,5 +36,10 @@ call_user_func(function(){
         );
         // hide the module because it shall only be accessible via the toolbar icon
         \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig('options.hideModules.user := addToList(BeUserNotesNotes)');
+        
+        $iconRegistry = TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Imaging\IconRegistry::class);
+        $iconRegistry->registerIcon('be_user_notes_actions-document-select', TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class, ['source' => 'EXT:be_user_notes/Resources/Public/Icons/actions-document-select.svg']);
+        $iconRegistry->registerIcon('be_user_notes_actions-document-open', TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class, ['source' => 'EXT:be_user_notes/Resources/Public/Icons/actions-document-open.svg']);
+        $iconRegistry->registerIcon('be_user_notes_actions-delete', TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class, ['source' => 'EXT:be_user_notes/Resources/Public/Icons/actions-delete.svg']);
     }
 });

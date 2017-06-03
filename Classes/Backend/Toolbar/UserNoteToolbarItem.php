@@ -17,12 +17,15 @@ namespace TheCodingOwl\BeUserNotes\Backend\Toolbar;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Lang\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+
+use TheCodingOwl\BeUserNotes\Domain\Repository\NoteRepository;
 
 /**
  * This class provides the toolbar item for the TYPO3 toolbar, that provides
@@ -46,6 +49,12 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
     protected $iconFactory;
 
     /**
+     * Recurring part of the locallang string
+     *
+     * @var string 
+     */
+    protected $ll = 'LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:';
+    /**
      * Constructor of the ToolbarItem
      */
     public function __construct() {
@@ -61,9 +70,11 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
         $this->beUser = $GLOBALS['BE_USER'];
         $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $pageRenderer = $this->getPageRenderer();
-        $pageRenderer->addInlineLanguageLabel('modal.notes.button.add', $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:modal.notes.button.add'));
-        $pageRenderer->addInlineLanguageLabel('modal.notes.item.add', $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:modal.notes.item.add'));
+        $pageRenderer->addInlineLanguageLabel('modal.notes.button.add', $this->getLanguageService()->sL($this->ll . 'modal.notes.button.add'));
+        $pageRenderer->addInlineLanguageLabel('modal.notes.item.add', $this->getLanguageService()->sL($this-> ll . 'modal.notes.item.add'));
         $pageRenderer->loadRequireJsModule('TYPO3/CMS/BeUserNotes/Toolbar/Notes');
+        $pageRenderer->addCssFile(ExtensionManagementUtility::extRelPath('be_user_notes') . 'Resources/Public/Css/Notes.css');
+        
     }
 
     /**
@@ -94,28 +105,52 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
     public function getDropDown(): string {
         $outNewNotes = '';
         $outNotes = '';
-        $notes = $this->getNotes();
+        $notes = NoteRepository::findAllArray();
         foreach($notes as $note){
-            $moduleUrl = BackendUtility::getModuleUrl('record_edit', [ 'sys_note' => [ $note['uid'] => 'edit' ] ]);
+            $moduleUrl = BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => [ 'show' ], 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]);
             $listItemClass = 'note-item';
-            if( $note['viewed'] ){
+            $actions = '<a class="note-dismiss" title="' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.new.dismiss') . '" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => [ 'dismiss' ], 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]) . '">' . $this->iconFactory->getIcon('be_user_notes_actions-document-select', Icon::SIZE_SMALL) . '</a>';
+            if( 
+                (
+                    $note['cruser'] === $this->getBackendUserAuthentication()->user['uid'] &&
+                    $note['owner'] === 0
+                ) || 
+                (
+                    $note['owner'] === $this->getBackendUserAuthentication()->user['uid'] 
+                )
+            ){
+                $actions .= '<a class="note-edit" title="' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.edit') . '" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => [ 'edit' ], 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]) . '">' . $this->iconFactory->getIcon('be_user_notes_actions-document-open', Icon::SIZE_SMALL) . '</a>';
+            }
+            if(
+                $note['personal'] === 1 &&
+                (
+                    (
+                        $note['cruser'] === $this->getBackendUserAuthentication()->user['uid'] &&
+                        $note['owner'] === 0
+                    ) || 
+                    $note['owner'] === $this->getBackendUserAuthentication()->user['uid']
+                )
+            ){
+                $actions .= '<a class="note-remove" title="' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.remove') . '" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => [ 'remove' ], 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]) . '">' . $this->iconFactory->getIcon('be_user_notes_actions-delete', Icon::SIZE_SMALL) . '</a>';
+            }
+            if( !$note['viewed'] ){
                 $listItemClass .= ' note-new';
             }
-            $noteListItem = '<li class="dropdown-item"><a href="' . $moduleUrl . '" data-note="' . $note['uid'] . '" class="' . $listItemClass . '">' . $note['subject'] . '</a></li>';
-            if( $note['viewed'] ){
+            $noteListItem = '<li class="dropdown-item"><a href="' . $moduleUrl . '" data-note="' . $note['uid'] . '" class="' . $listItemClass . '">' . $this->iconFactory->getIcon('mimetypes-x-sys_note', Icon::SIZE_SMALL) . $note['subject'] . '</a>' . $actions . '</li>';
+            if( !$note['viewed'] ){
                 $outNewNotes .= $noteListItem;
             } else {
                 $outNotes .= $noteListItem;
             }
         }
         return '<ul class="dropdown-list">'
-            . '<li class="dropdown-header">' . $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:toolbar.notes.item.new.title') . '</li>'
-            . ( $outNewNotes !== '' ? $outNewNotes : '<li class="dropdown-item">' . $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:toolbar.notes.item.new.none') . '</li>' )
+            . '<li class="dropdown-header">' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.new.title') . '</li>'
+            . ( $outNewNotes !== '' ? $outNewNotes : '<li class="dropdown-item">' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.new.none') . '</li>' )
             . '<li class="divider" role="separator"></li>'
-            . '<li class="dropdown-header">' . $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:toolbar.notes.item.title') . '</li>'
-            . ( $outNotes !== '' ? $outNotes : '<li class="dropdown-item">' . $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:toolbar.notes.item.none') . '</li>' )
+            . '<li class="dropdown-header">' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.title') . '</li>'
+            . ( $outNotes !== '' ? $outNotes : '<li class="dropdown-item">' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.none') . '</li>' )
             . '<li class="divider" role="separator"></li>'
-            . '<li class="dropdown-item"><a class="note-add" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes'). '">' . $this->iconFactory->getIcon('mimetypes-x-sys_note', Icon::SIZE_SMALL, 'overlay-new') . $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:toolbar.notes.item.add') . '</a></li>'
+            . '<li class="dropdown-item"><a class="note-add" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes'). '">' . $this->iconFactory->getIcon('mimetypes-x-sys_note', Icon::SIZE_SMALL, 'overlay-new') . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.add') . '</a></li>'
             . '</ul>';
     }
 
@@ -134,10 +169,10 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
      * @return string
      */
     public function getItem(): string {
-        $count = $this->countNewNotes();
-        return '<span title="' . $this->getLanguageService()->sL('LLL:EXT:be_user_notes/Resources/Private/Language/locallang_notes.xlf:toolbar.notes.title') . '">'
+        $count = NoteRepository::countNew();
+        return '<span title="' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.title') . '">'
             . $this->iconFactory->getIcon('mimetypes-x-sys_note', Icon::SIZE_SMALL)
-            . ( (int) $count > 0 ? '<span class="badge badge-info" style="display: none;">' . $this->countNewNotes() . '</span>' : '' )
+            . ( (int) $count > 0 ? '<span class="badge badge-info" style="display: none;">' . $count . '</span>' : '' )
             . '</span>';
     }
 
@@ -160,41 +195,6 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
     }
 
     /**
-     * Count the new notes for the be_user
-     *
-     * @return int
-     */
-    protected function countNewNotes(): int {
-        return $this->getDatabaseConnection()->exec_SELECTcountRows(
-            'user_sys_note.sys_note',
-            'user_sys_note LEFT JOIN sys_note ON sys_note.uid=user_sys_note.sys_note',
-            'user_sys_note.be_user=' . (int)$this->beUser->user['uid'] . ' AND user_sys_note.viewed=0 ' . BackendUtility::BEenableFields('sys_note')
-        );
-    }
-
-    /**
-     * Get the notes
-     *
-     * @return array
-     */
-    protected function getNotes(): array {
-        return $this->getDatabaseConnection()->exec_SELECTgetRows(
-            'sys_note.*, user_sys_note.viewed as "viewed"',
-            'user_sys_note LEFT JOIN sys_note ON sys_note.uid=user_sys_note.sys_note',
-            'user_sys_note.be_user=' . (int)$this->beUser->user['uid'] . BackendUtility::BEenableFields('sys_note')
-        );
-    }
-
-    /**
-     * Get the database connection
-     *
-     * @return DatabaseConnection
-     */
-    protected function getDatabaseConnection(): DatabaseConnection {
-        return $GLOBALS['TYPO3_DB'];
-    }
-
-    /**
      * Get the LanguageService
      *
      * @return \TYPO3\CMS\Lang\LanguageService
@@ -210,5 +210,14 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
      */
     protected function getPageRenderer(): PageRenderer {
         return GeneralUtility::makeInstance(PageRenderer::class);
+    }
+    
+    /**
+     * Get the BackendUserAuthentication aka BE_USER
+     *
+     * @return BackendUserAuthentication
+     */
+    protected function getBackendUserAuthentication(): BackendUserAuthentication{
+        return $GLOBALS['BE_USER'];
     }
 }

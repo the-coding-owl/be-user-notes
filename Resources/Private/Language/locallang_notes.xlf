@@ -15,11 +15,20 @@
             <trans-unit id="toolbar.notes.item.new.none">
                 <source>There are no unread notes</source>
             </trans-unit>
+            <trans-unit id="toolbar.notes.item.new.dismiss">
+                <source>Dismiss</source>
+            </trans-unit>
             <trans-unit id="toolbar.notes.item.none">
                 <source>There are no notes</source>
             </trans-unit>
             <trans-unit id="toolbar.notes.item.add">
                 <source>Add new note</source>
+            </trans-unit>
+            <trans-unit id="toolbar.notes.item.edit">
+                <source>Edit note</source>
+            </trans-unit>
+            <trans-unit id="toolbar.notes.item.remove">
+                <source>Remove note</source>
             </trans-unit>
 
             <trans-unit id="modal.notes.button.add">
