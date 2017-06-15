@@ -20,6 +20,8 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 
+use TheCodingOwl\BeUserNotes\Domain\Model\Note;
+
 /**
  * Repository for handling Note Models
  *
@@ -58,6 +60,54 @@ class NoteRepository extends Repository{
             'sys_note LEFT JOIN sys_note_viewed ON sys_note.uid=sys_note_viewed.sys_note AND sys_note_viewed.be_user=' . (int)self::getBackendUserAuthentication()->user['uid'],
             '(sys_note.owner = ' . (int)self::getBackendUserAuthentication()->user['uid'] . ') OR (sys_note.personal = 0)' . BackendUtility::BEenableFields('sys_note')
         );
+    }
+
+    /**
+     * Set the viewed state for the given note to TRUE
+     *
+     * @param Note $note The note to set the viewed state for
+     *
+     * @return bool
+     */
+    static public function setAsViewed(Note $note): bool {
+        $db = self::getDatabaseConnection();
+        $viewedRow = self::getViewedRow($note);
+        $success = FALSE;
+        if( $viewedRow ){
+            $success = $db->exec_UPDATEquery('sys_note_viewed', 'sys_note=' . (int)$note->getUid() . ' AND be_user=' . (int)self::getBackendUserAuthentication()->user['uid'], ['viewed' => TRUE]);
+        } else {
+            $success = $db->exec_INSERTquery('sys_note_viewed', [
+                'sys_note' => (int)$note->getUid(),
+                'be_user' => (int)self::getBackendUserAuthentication()->user['uid'],
+                'viewed' => TRUE
+            ]);
+        }
+        return $success;
+    }
+    
+    /**
+     * Get the row fromm the sys_note_viewed table for the given note
+     *
+     * @param Note $note The note to find the viewed row by
+     *
+     * @return NULL|array
+     */
+    static protected function getViewedRow(Note $note){
+        return self::getDatabaseConnection()->exec_SELECTgetSingleRow('*', 'sys_note_viewed', 'sys_note=' . (int)$note->getUid() . ' AND be_user=' . (int)self::getBackendUserAuthentication()->user['uid']);
+    }
+    
+    /**
+     * Is the given note viewed by the current be user?
+     *
+     * @param Note $note The note to check the viewed state for
+     */
+    static public function isViewed(Note $note): bool {
+        $isViewed = FALSE;
+        $viewedRow = self::getViewedRow($note);
+        if( $viewedRow && $viewedRow['viewed'] ){
+            $isViewed = TRUE;
+        }
+        return $isViewed;
     }
 
     /**

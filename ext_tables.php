@@ -23,7 +23,7 @@ call_user_func(function(){
             'notes',
             '',
             [
-                'Note' => 'new,create',
+                'Note' => 'new,create,show,dismiss,edit,remove,update',
             ],
             [
                 'access' => 'user,group',

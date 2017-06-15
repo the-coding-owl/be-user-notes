@@ -68,6 +68,13 @@ class Note extends AbstractEntity {
     protected $category;
     
     /**
+     * The viewed state of the note
+     *
+     * @var bool
+     */
+    protected $viewed;
+    
+    /**
      * Set the subject
      *
      * @param string $subject The subject to set
@@ -140,6 +147,18 @@ class Note extends AbstractEntity {
     }
 
     /**
+     * Set the viewed state of the note
+     *
+     * @param bool $viewed TRUE or FALSE for the state
+     *
+     * @return self
+     */
+    public function setViewed(bool $viewed): self {
+        $this->viewed = $viewed;
+        return $this;
+    }
+
+    /**
      * Get the subject of the note
      *
      * @return string
@@ -193,4 +212,15 @@ class Note extends AbstractEntity {
         return $this->category;
     }
 
+    /**
+     * Get the viewed state of the note
+     *
+     * @return bool
+     */
+    public function getViewed(): bool {
+        if( $this->viewed === NULL ){
+            \TheCodingOwl\BeUserNotes\Domain\Repository\NoteRepository::isViewed($this);
+        }
+        return $this->viewed;
+    }
 }

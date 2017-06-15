@@ -1,0 +1,19 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+	<f:layout name="Default" />
+
+    <f:section name="main">
+        <h1 class="headline">
+            <f:render partial="Note/CategoryIcon" section="main" arguments="{note: note}" />
+            {note.subject}
+        </h1>
+        <p>
+            {note.message}
+        </p>
+        <f:if condition="{note.personal}">
+            <p><f:translate key="action.show.note.personal" /></p>
+        </f:if>
+        <f:if condition="{note.owner}">
+            <p><f:translate key="action.show.note.owner" arguments="{0: note.owner.username}" /></p>
+        </f:if>
+    </f:section>
+</html>

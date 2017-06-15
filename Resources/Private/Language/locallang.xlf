@@ -23,6 +23,13 @@
                 <source>Sucessfully created new note.</source>
             </trans-unit>
             
+            <trans-unit id="action.dismiss.success">
+                <source>Note dismissed.</source>
+            </trans-unit>
+            <trans-unit id="action.dismiss.fail">
+                <source>Failed to dismiss note.</source>
+            </trans-unit>
+            
             <!-- Validation messages -->
             <trans-unit id="error.field.subject.1221560718">
                 <source>Please provide a subject</source>

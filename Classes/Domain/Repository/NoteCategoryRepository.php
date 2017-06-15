@@ -18,8 +18,10 @@ namespace TheCodingOwl\BeUserNotes\Domain\Repository;
 use TYPO3\CMS\Extbase\Persistence\Generic\Exception\NotImplementedException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
+use TYPO3\CMS\Core\Database\DatabaseConnection;
 
 use TheCodingOwl\BeUserNotes\Domain\Model\NoteCategory;
+use TheCodingOwl\BeUserNotes\Domain\Model\Note;
 
 /**
  * Repository class for note categories
@@ -97,6 +99,37 @@ class NoteCategoryRepository {
     public function findByUid(int $uid){
         return $this->findByIdentifier($uid);
     }
+
+    /**
+     * \TheCodingOwl\BeUserNotes\Domain\Model\NoteCategory
+     * 
+     * @param int|string|\TheCodingOwl\BeUserNotes\Domain\Model\Note $note The note to find the category for
+     *
+     * @return   \TheCodingOwl\BeUserNotes\Domain\Model\NoteCategory
+     * @throws \TypeError
+     */
+    public function findByNote($note){
+        if( $note instanceof Note ){
+            $note = $note->getUid();
+        } elseif( is_int($note) || is_string ($note) ){
+            $note = (int) $note;
+        } else{
+            throw new \TypeError('This method can not handle a note parameter of type \"' . gettype($note) . '\"!');
+        }
+        $db = $this->getDatabaseConnection();
+        $note = $db->exec_SELECTgetSingleRow('category', 'sys_note', 'uid=' . (int)$note);
+        return $this->findByIdentifier($note['category']);
+    }
+
+    /**
+     * Finds the default NoteCategory
+     *
+     * @return \TheCodingOwl\BeUserNotes\Domain\Model\NoteCategory
+     */
+    public function findDefaultNoteCategory(){
+        $categoryIdentifier = $GLOBALS['TCA']['sys_note']['columns']['category']['config']['default'] ?? 0;
+        return $this->findByIdentifier($categoryIdentifier);
+    }
     
     /**
      * Add a NoteCategory
@@ -142,5 +175,14 @@ class NoteCategoryRepository {
      */
     public function persist(){
         throw new NotImplementedException('Can not use the %s-method on note categories!', 1496352201, ['methodName' => __METHOD__]);
+    }
+    
+    /**
+     * Get the DatabaseConnection object
+     *
+     * @return DatabaseConnection
+     */
+    protected function getDatabaseConnection(): DatabaseConnection{
+        return $GLOBALS['TYPO3_DB'];
     }
 }

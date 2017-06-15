@@ -107,9 +107,9 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
         $outNotes = '';
         $notes = NoteRepository::findAllArray();
         foreach($notes as $note){
-            $moduleUrl = BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => [ 'show' ], 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]);
+            $moduleUrl = BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => 'show', 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]);
             $listItemClass = 'note-item';
-            $actions = '<a class="note-dismiss" title="' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.new.dismiss') . '" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => [ 'dismiss' ], 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]) . '">' . $this->iconFactory->getIcon('be_user_notes_actions-document-select', Icon::SIZE_SMALL) . '</a>';
+            $actions = '<a class="note-dismiss" title="' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.new.dismiss') . '" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => 'dismiss', 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]) . '">' . $this->iconFactory->getIcon('be_user_notes_actions-document-select', Icon::SIZE_SMALL) . '</a>';
             if( 
                 (
                     $note['cruser'] === $this->getBackendUserAuthentication()->user['uid'] &&
@@ -119,7 +119,7 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
                     $note['owner'] === $this->getBackendUserAuthentication()->user['uid'] 
                 )
             ){
-                $actions .= '<a class="note-edit" title="' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.edit') . '" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => [ 'edit' ], 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]) . '">' . $this->iconFactory->getIcon('be_user_notes_actions-document-open', Icon::SIZE_SMALL) . '</a>';
+                $actions .= '<a class="note-edit" title="' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.edit') . '" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => 'edit', 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]) . '">' . $this->iconFactory->getIcon('be_user_notes_actions-document-open', Icon::SIZE_SMALL) . '</a>';
             }
             if(
                 $note['personal'] === 1 &&
@@ -131,7 +131,7 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
                     $note['owner'] === $this->getBackendUserAuthentication()->user['uid']
                 )
             ){
-                $actions .= '<a class="note-remove" title="' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.remove') . '" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => [ 'remove' ], 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]) . '">' . $this->iconFactory->getIcon('be_user_notes_actions-delete', Icon::SIZE_SMALL) . '</a>';
+                $actions .= '<a class="note-remove" title="' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.remove') . '" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => 'remove', 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]) . '">' . $this->iconFactory->getIcon('be_user_notes_actions-delete', Icon::SIZE_SMALL) . '</a>';
             }
             if( !$note['viewed'] ){
                 $listItemClass .= ' note-new';

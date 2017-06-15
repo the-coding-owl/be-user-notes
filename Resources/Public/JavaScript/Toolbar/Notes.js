@@ -79,6 +79,7 @@ function($, Modal, Severity, Icons, Notification) {
         xhrObjects: {
             xhrCreate: null,
             xhrDelete: null,
+            xhrShow: null,
             xhrRead: []
         }
     };
@@ -88,6 +89,26 @@ function($, Modal, Severity, Icons, Notification) {
      * @returns {undefined}
      */
     NotesMenu.initializeEvents = function(){
+        NotesMenu.elements.toolbarContainer.on('click.show-note', NotesMenu.selectors.itemsSelector, function(event){
+            var $item = $(this);
+            event.preventDefault();
+            NotesMenu.startLoading();
+            xhrAbort(NotesMenu.xhrObjects.xhrShow);
+            NotesMenu.xhrObjects.xhrShow = $.get($item.attr('href'), {tx_beusernotes_user_beusernotesnotes:{target:'modal'}});
+            NotesMenu.xhrObjects.xhrShow.always(function(){
+                NotesMenu.finishLoading();
+            });
+            NotesMenu.xhrObjects.xhrShow.done(function(data){
+                if( data && data.success ){
+                    NotesMenu.openModal(data.content, 'show');
+                } else {
+                    NotesMenu.notifyError(data.message);
+                }
+            });
+            NotesMenu.xhrObjects.xhrShow.fail(function(){
+                NotesMenu.notifyError(NotesMenu.xhrObjects.xhrShow.statusText);
+            });
+        });
         NotesMenu.elements.toolbarContainer.on('click.add-note', NotesMenu.selectors.addButtonSelector, function(event){
             event.preventDefault();
             NotesMenu.startLoading();
@@ -98,7 +119,7 @@ function($, Modal, Severity, Icons, Notification) {
             });
             NotesMenu.xhrObjects.xhrCreate.done(function(data){
                 if( data && data.success ){
-                    NotesMenu.openCreateModal(data.content);
+                    NotesMenu.openModal(data.content, 'create');
                 } else {
                     NotesMenu.notifyError(data.message);
                 }
@@ -141,24 +162,41 @@ function($, Modal, Severity, Icons, Notification) {
         Notification.success(TYPO3.lang['modal.notes.success.title'] || 'Success', message);
     };
     /**
-     * Open the modal for the creation of a sys note
+     * Open the modal for showing or creating a sys_note
      *
      * @param {string} content The content of the modal
+     * @param {string} mode The mode of the modal
      *
      * @returns {undefined}
      */
-    NotesMenu.openCreateModal = function(content){
-        var buttons = [
-            {
+    NotesMenu.openModal = function(content, mode){
+        var title = '',
+            buttons = [];
+        if( mode === 'show' ){
+            title = TYPO3.lang['modal.notes.item.show'] || 'Note';
+            buttons.push({
+                text: TYPO3.lang['button.close'] || 'Close',
+                active: true,
+                btnClass: 'btn-default',
+                name: 'close',
+                trigger: function(event){
+                    Modal.dismiss();
+                }
+            });
+        } else if(mode === 'create') {
+            title = TYPO3.lang['modal.notes.item.add'] || 'Add new note';
+            buttons.push({
                 text: TYPO3.lang['button.cancel'] || 'Cancel',
                 active: true,
                 btnClass: 'btn-default',
                 name: 'cancel',
                 trigger: function(event){
+                    var xhr = $.post();
+                    NotesMenu.xhrObjects.xhrRead.push();
                     Modal.dismiss();
                 }
-            },
-            {
+            });
+            buttons.push({
                 text: TYPO3.lang['modal.notes.button.add'] || 'Add',
                 active: true,
                 btnClass: 'btn-success',
@@ -182,9 +220,9 @@ function($, Modal, Severity, Icons, Notification) {
                         NotesMenu.notifyError(xhr.statusText);
                     });
                 }
-            }
-        ];
-        Modal.confirm(TYPO3.lang['modal.notes.item.add'] || 'Add new note', $(content), Severity.info, buttons);
+            });
+        }
+        Modal.show(title, $(content), Severity.info, buttons);
     };
     /**
      * Send the note data to the server to create the note
