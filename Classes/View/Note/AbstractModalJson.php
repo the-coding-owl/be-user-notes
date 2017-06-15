@@ -15,10 +15,18 @@
 
 namespace TheCodingOwl\BeUserNotes\View\Note;
 
+use TYPO3\CMS\Extbase\Mvc\View\JsonView;
+
 /**
- * Json view for the create view
+ * Abstract JsonView for Modal Views
  *
  * @author Kevin Ditscheid <kevinditscheid@gmail.com>
  */
-class CreateJson extends AbstractModalJson{
+abstract class AbstractModalJson extends JsonView{
+    /**
+     * Array of variables to render by this view
+     *
+     * @var array
+     */
+    protected $variablesToRender = ['success', 'content', 'validationResults', 'message'];
 }

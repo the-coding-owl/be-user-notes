@@ -16,9 +16,9 @@
 namespace TheCodingOwl\BeUserNotes\View\Note;
 
 /**
- * Json view for the create view
+ * Json view for the show action
  *
  * @author Kevin Ditscheid <kevinditscheid@gmail.com>
  */
-class CreateJson extends AbstractModalJson{
+class ShowJson extends AbstractModalJson{
 }

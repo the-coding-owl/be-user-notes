@@ -15,18 +15,10 @@
 
 namespace TheCodingOwl\BeUserNotes\View\Note;
 
-use TYPO3\CMS\Extbase\Mvc\View\JsonView;
-
 /**
  * Json view for the new action
  *
  * @author Kevin Ditscheid <kevinditscheid@gmail.com>
  */
-class NewJson extends JsonView{
-    /**
-     * Array of variables to render by this view
-     *
-     * @var array
-     */
-    protected $variablesToRender = ['success', 'content', 'message'];
+class NewJson extends AbstractModalJson{
 }
