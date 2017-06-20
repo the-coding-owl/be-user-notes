@@ -44,8 +44,8 @@ class NoteRepository extends Repository{
     static public function countNew(): int {
         return self::getDatabaseConnection()->exec_SELECTcountRows(
             'sys_note.uid',
-            'sys_note LEFT JOIN sys_note_viewed ON sys_note.uid=sys_note_viewed.sys_note',
-            'sys_note_viewed.be_user=' . (int)self::getBackendUserAuthentication()->user['uid'] . ' AND sys_note_viewed.viewed=0 ' . BackendUtility::BEenableFields('sys_note')
+            'sys_note LEFT JOIN sys_note_viewed ON sys_note.uid=sys_note_viewed.sys_note AND sys_note_viewed.be_user=' . (int)self::getBackendUserAuthentication()->user['uid'],
+            '(sys_note_viewed.viewed = 0 OR sys_note_viewed.viewed IS NULL) AND ((sys_note.owner = ' . (int)self::getBackendUserAuthentication()->user['uid'] . ') OR (sys_note.personal = 0))' . BackendUtility::BEenableFields('sys_note')
         );
     }
 
@@ -58,7 +58,7 @@ class NoteRepository extends Repository{
         return self::getDatabaseConnection()->exec_SELECTgetRows(
             'sys_note.*, sys_note_viewed.viewed as "viewed"',
             'sys_note LEFT JOIN sys_note_viewed ON sys_note.uid=sys_note_viewed.sys_note AND sys_note_viewed.be_user=' . (int)self::getBackendUserAuthentication()->user['uid'],
-            '(sys_note.owner = ' . (int)self::getBackendUserAuthentication()->user['uid'] . ') OR (sys_note.personal = 0)' . BackendUtility::BEenableFields('sys_note')
+            '((sys_note.owner = ' . (int)self::getBackendUserAuthentication()->user['uid'] . ') OR (sys_note.personal = 0))' . BackendUtility::BEenableFields('sys_note')
         );
     }
 

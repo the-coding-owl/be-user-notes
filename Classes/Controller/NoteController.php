@@ -183,6 +183,18 @@ class NoteController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController{
     }
     
     /**
+     * Initialize the dismiss action ti alter the view format when the target
+     * parameter is set to modal
+     */
+    public function initializeDismissAction(){
+        if( $this->request->hasArgument('target') ){
+            $target = $this->request->getArgument('target');
+            if( $target === 'modal' ){
+                $this->request->setFormat('json');
+            }
+        }
+    }
+    /**
      * Dismiss the note
      *
      * @param Note $note The note to dismiss

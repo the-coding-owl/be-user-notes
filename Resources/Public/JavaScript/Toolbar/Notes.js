@@ -62,16 +62,22 @@ function($, Modal, Severity, Icons, Notification) {
         selectors:{
             toolbarContainerSelector: '#thecodingowl-beusernotes-backend-toolbar-usernotetoolbaritem',
             addButtonSelector: '.note-add',
+            dismissButtonSelector: '.note-dismiss',
             itemsSelector: '.note-item',
             itemsNewSelector: '.note-new',
-            iconSelector: '.dropdown-toggle span.icon'
+            iconSelector: '.dropdown-toggle span.icon',
+            readHeader: '.read-header',
+            newHeader: '.new-header',
+            badge: '.badge',
+            dropdownItem: '.dropdown-item'
         },
         elements: {
             toolbarContainer: null,
             addButton: null,
             icon: null,
             spinner: '',
-            spinnerDark: ''
+            spinnerDark: '',
+            badge: null
         },
         items: null,
         itemsNew: null,
@@ -92,41 +98,16 @@ function($, Modal, Severity, Icons, Notification) {
         NotesMenu.elements.toolbarContainer.on('click.show-note', NotesMenu.selectors.itemsSelector, function(event){
             var $item = $(this);
             event.preventDefault();
-            NotesMenu.startLoading();
-            xhrAbort(NotesMenu.xhrObjects.xhrShow);
-            NotesMenu.xhrObjects.xhrShow = $.get($item.attr('href'), {tx_beusernotes_user_beusernotesnotes:{target:'modal'}});
-            NotesMenu.xhrObjects.xhrShow.always(function(){
-                NotesMenu.finishLoading();
-            });
-            NotesMenu.xhrObjects.xhrShow.done(function(data){
-                if( data && data.success ){
-                    NotesMenu.openModal(data.content, 'show');
-                } else {
-                    NotesMenu.notifyError(data.message);
-                }
-            });
-            NotesMenu.xhrObjects.xhrShow.fail(function(){
-                NotesMenu.notifyError(NotesMenu.xhrObjects.xhrShow.statusText);
-            });
+            NotesMenu.show($item);
+        });
+        NotesMenu.elements.toolbarContainer.on('click.dismiss-note', NotesMenu.selectors.dismissButtonSelector, function(event){
+            var $item = $(this);
+            event.preventDefault();
+            NotesMenu.dismiss($item);
         });
         NotesMenu.elements.toolbarContainer.on('click.add-note', NotesMenu.selectors.addButtonSelector, function(event){
             event.preventDefault();
-            NotesMenu.startLoading();
-            xhrAbort(NotesMenu.xhrObjects.xhrCreate);
-            NotesMenu.xhrObjects.xhrCreate = $.get(NotesMenu.elements.addButton.attr('href'),{tx_beusernotes_user_beusernotesnotes:{target:'modal'}});
-            NotesMenu.xhrObjects.xhrCreate.always(function(){
-                NotesMenu.finishLoading();
-            });
-            NotesMenu.xhrObjects.xhrCreate.done(function(data){
-                if( data && data.success ){
-                    NotesMenu.openModal(data.content, 'create');
-                } else {
-                    NotesMenu.notifyError(data.message);
-                }
-            });
-            NotesMenu.xhrObjects.xhrCreate.fail(function(){
-                NotesMenu.notifyError(NotesMenu.xhrObjects.xhrCreate.statusText);
-            });
+            NotesMenu.add();
         });
     };
     /**
@@ -141,6 +122,10 @@ function($, Modal, Severity, Icons, Notification) {
         NotesMenu.items = NotesMenu.elements.toolbarContainer.find(NotesMenu.selectors.itemsSelector);
         NotesMenu.itemsNew = NotesMenu.elements.toolbarContainer.find(NotesMenu.selectors.itemsNewSelector);
         NotesMenu.elements.icon = NotesMenu.elements.toolbarContainer.find(NotesMenu.selectors.iconSelector).clone();
+        NotesMenu.elements.badge = NotesMenu.elements.toolbarContainer.find(NotesMenu.selectors.badge);
+        if( NotesMenu.elements.badge.text() > 0 ){
+            NotesMenu.elements.badge.show();
+        }
         NotesMenu.initializeEvents();
     };
     /**
@@ -160,6 +145,82 @@ function($, Modal, Severity, Icons, Notification) {
      */
     NotesMenu.notifySuccess = function(message){
         Notification.success(TYPO3.lang['modal.notes.success.title'] || 'Success', message);
+    };
+    /**
+     * Add a note
+     *
+     * @returns {undefined}
+     */
+    NotesMenu.add = function(){
+        NotesMenu.startLoading();
+        xhrAbort(NotesMenu.xhrObjects.xhrCreate);
+        NotesMenu.xhrObjects.xhrCreate = $.get(NotesMenu.elements.addButton.attr('href'),{tx_beusernotes_user_beusernotesnotes:{target:'modal'}});
+        NotesMenu.xhrObjects.xhrCreate.always(function(){
+            NotesMenu.finishLoading();
+        });
+        NotesMenu.xhrObjects.xhrCreate.done(function(data){
+            if( data && data.success ){
+                NotesMenu.openModal(data.content, 'create');
+            } else {
+                NotesMenu.notifyError(data.message);
+            }
+        });
+        NotesMenu.xhrObjects.xhrCreate.fail(function(){
+            NotesMenu.notifyError(NotesMenu.xhrObjects.xhrCreate.statusText);
+        });
+    };
+    /**
+     * Show the note
+     *
+     * @param {object} $item The item to show
+     *
+     * @returns {undefined}
+     */
+    NotesMenu.show = function($item){
+        NotesMenu.startLoading();
+        xhrAbort(NotesMenu.xhrObjects.xhrShow);
+        NotesMenu.xhrObjects.xhrShow = $.get($item.attr('href'), {tx_beusernotes_user_beusernotesnotes:{target:'modal'}});
+        NotesMenu.xhrObjects.xhrShow.always(function(){
+            NotesMenu.finishLoading();
+        });
+        NotesMenu.xhrObjects.xhrShow.done(function(data){
+            if( data && data.success ){
+                NotesMenu.openModal(data.content, 'show');
+            } else {
+                NotesMenu.notifyError(data.message);
+            }
+        });
+        NotesMenu.xhrObjects.xhrShow.fail(function(){
+            NotesMenu.notifyError(NotesMenu.xhrObjects.xhrShow.statusText);
+        });
+    };
+    /**
+     * Dismiss a note
+     *
+     * @param {$item} $item The item to dismiss
+     *
+     * @returns {undefined}
+     */
+    NotesMenu.dismiss = function($item){
+        NotesMenu.startLoading();
+        var xhr = $.get($item.attr('href'), {tx_beusernotes_user_beusernotesnotes:{target:'modal'}});
+        xhr.always(function(){
+            NotesMenu.finishLoading();
+        });
+        xhr.done(function(data){
+            if( data && data.success ){
+                $(NotesMenu.selectors.readHeader).after($item.closest(NotesMenu.selectors.dropdownItem));
+                $item.closest(NotesMenu.selectors.dropdownItem).find(NotesMenu.selectors.itemsNewSelector).removeClass('note-new');
+                $item.closest(NotesMenu.selectors.dropdownItem).find(NotesMenu.selectors.dismissButtonSelector).remove();
+                NotesMenu.reduceCount();
+                NotesMenu.notifySuccess(data.message);
+            } else {
+                NotesMenu.notifyError(data.message);
+            }
+        });
+        xhr.fail(function(){
+            NotesMenu.notifyError(xhr.statusText);
+        });
     };
     /**
      * Open the modal for showing or creating a sys_note
@@ -243,6 +304,20 @@ function($, Modal, Severity, Icons, Notification) {
         });
         return NotesMenu.xhrObjects.xhrCreate;
     };
+    /**
+     * Reduce the badge count and hide it if the counter reaches 0
+     *
+     * @returns {undefined}
+     */
+    NotesMenu.reduceCount = function(){
+        var count = parseInt(NotesMenu.elements.badge.text(), 10);
+        if( count > 0 ){
+            NotesMenu.elements.badge.text(count - 1);
+            if( count === 1 ){
+                NotesMenu.elements.badge.hide();
+            }
+        }
+    }
     /**
      * Load some icons from the server
      *

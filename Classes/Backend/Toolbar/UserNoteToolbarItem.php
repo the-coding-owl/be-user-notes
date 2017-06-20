@@ -109,7 +109,11 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
         foreach($notes as $note){
             $moduleUrl = BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => 'show', 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]);
             $listItemClass = 'note-item';
-            $actions = '<a class="note-dismiss" title="' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.new.dismiss') . '" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => 'dismiss', 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]) . '">' . $this->iconFactory->getIcon('be_user_notes_actions-document-select', Icon::SIZE_SMALL) . '</a>';
+            $actions = '';
+            if( !$note['viewed'] ){
+                $actions .= '<a class="note-dismiss" title="' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.new.dismiss') . '" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => 'dismiss', 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]) . '">' . $this->iconFactory->getIcon('be_user_notes_actions-document-select', Icon::SIZE_SMALL) . '</a>';
+                $listItemClass .= ' note-new';
+            }
             if( 
                 (
                     $note['cruser'] === $this->getBackendUserAuthentication()->user['uid'] &&
@@ -133,10 +137,7 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
             ){
                 $actions .= '<a class="note-remove" title="' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.remove') . '" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes', [ 'tx_beusernotes_user_beusernotesnotes[action]' => 'remove', 'tx_beusernotes_user_beusernotesnotes[note]' => $note['uid'] ]) . '">' . $this->iconFactory->getIcon('be_user_notes_actions-delete', Icon::SIZE_SMALL) . '</a>';
             }
-            if( !$note['viewed'] ){
-                $listItemClass .= ' note-new';
-            }
-            $noteListItem = '<li class="dropdown-item"><a href="' . $moduleUrl . '" data-note="' . $note['uid'] . '" class="' . $listItemClass . '">' . $this->iconFactory->getIcon('mimetypes-x-sys_note', Icon::SIZE_SMALL) . $note['subject'] . '</a>' . $actions . '</li>';
+            $noteListItem = '<li class="dropdown-item"><a href="' . $moduleUrl . '" data-note="' . $note['uid'] . '" class="' . $listItemClass . '">' . $this->iconFactory->getIcon('mimetypes-x-sys_note', Icon::SIZE_SMALL) . $note['subject'] . '</a><span class="note-actions">' . $actions . '</span></li>';
             if( !$note['viewed'] ){
                 $outNewNotes .= $noteListItem;
             } else {
@@ -144,10 +145,10 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
             }
         }
         return '<ul class="dropdown-list">'
-            . '<li class="dropdown-header">' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.new.title') . '</li>'
+            . '<li class="dropdown-header new-header">' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.new.title') . '</li>'
             . ( $outNewNotes !== '' ? $outNewNotes : '<li class="dropdown-item">' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.new.none') . '</li>' )
             . '<li class="divider" role="separator"></li>'
-            . '<li class="dropdown-header">' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.title') . '</li>'
+            . '<li class="dropdown-header read-header">' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.title') . '</li>'
             . ( $outNotes !== '' ? $outNotes : '<li class="dropdown-item">' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.none') . '</li>' )
             . '<li class="divider" role="separator"></li>'
             . '<li class="dropdown-item"><a class="note-add" href="' . BackendUtility::getModuleUrl('user_BeUserNotesNotes'). '">' . $this->iconFactory->getIcon('mimetypes-x-sys_note', Icon::SIZE_SMALL, 'overlay-new') . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.item.add') . '</a></li>'
@@ -172,7 +173,7 @@ class UserNoteToolbarItem implements \TYPO3\CMS\Backend\Toolbar\ToolbarItemInter
         $count = NoteRepository::countNew();
         return '<span title="' . $this->getLanguageService()->sL($this->ll . 'toolbar.notes.title') . '">'
             . $this->iconFactory->getIcon('mimetypes-x-sys_note', Icon::SIZE_SMALL)
-            . ( (int) $count > 0 ? '<span class="badge badge-info" style="display: none;">' . $count . '</span>' : '' )
+            . ( (int) $count > 0 ? '<span class="badge badge-info">' . $count . '</span>' : '' )
             . '</span>';
     }
 
